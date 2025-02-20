@@ -1,5 +1,6 @@
-using GraphQL.Persistance.Entities;
+using GraphQL;
 using GraphQL.Persistance;
+using GraphQL.Persistance.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -13,9 +14,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<WriteDbContext>(x =>
 {
-    x.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"), n => {
-        n.MigrationsHistoryTable("MigrationHistory", "OData");
-    });
+    x.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
     x.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
     x.ConfigureWarnings(
        b => b.Log(
@@ -31,6 +30,12 @@ builder.Services.AddDbContext<WriteDbContext>(x =>
      .EnableSensitiveDataLogging(true);
 });
 
+builder.Services.AddGraphQLServer()
+    .AddQueryType<Query>()
+    .AddProjections()
+    .AddSorting()
+    .AddFiltering();
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
@@ -42,6 +47,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapGraphQL();
 
 app.MapPost("migration", async () =>
 {
