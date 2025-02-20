@@ -1,0 +1,6 @@
+@hostname=localhost
+@port=7045
+
+POST https://{{hostname}}:{{port}}/migration
+
+###
