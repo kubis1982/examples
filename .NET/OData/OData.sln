@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OData", "OData\OData.csproj", "{70C4ADC5-FD1D-44C0-9D4E-948FB2B6CD67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OData.AppHost", "OData.AppHost\OData.AppHost.csproj", "{3071162D-0E37-48F1-B878-F2BC4A938CF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OData.ServiceDefaults", "OData.ServiceDefaults\OData.ServiceDefaults.csproj", "{0FDC0F5D-D896-46B4-86AC-3CD228F4155B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{70C4ADC5-FD1D-44C0-9D4E-948FB2B6CD67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70C4ADC5-FD1D-44C0-9D4E-948FB2B6CD67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70C4ADC5-FD1D-44C0-9D4E-948FB2B6CD67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70C4ADC5-FD1D-44C0-9D4E-948FB2B6CD67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3071162D-0E37-48F1-B878-F2BC4A938CF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3071162D-0E37-48F1-B878-F2BC4A938CF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3071162D-0E37-48F1-B878-F2BC4A938CF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3071162D-0E37-48F1-B878-F2BC4A938CF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FDC0F5D-D896-46B4-86AC-3CD228F4155B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FDC0F5D-D896-46B4-86AC-3CD228F4155B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FDC0F5D-D896-46B4-86AC-3CD228F4155B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FDC0F5D-D896-46B4-86AC-3CD228F4155B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

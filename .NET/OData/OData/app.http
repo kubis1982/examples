@@ -1,0 +1,21 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+
+@hostname=localhost
+@port=7288
+POST https://{{hostname}}:{{port}}/migration
+
+### Contractors
+
+GET https://{{hostname}}:{{port}}/odata/contractors
+
+### Contractor: 1
+
+GET https://{{hostname}}:{{port}}/odata/contractors?%24filter=Id%20eq%201
+
+### Dokumenty
+
+GET https://{{hostname}}:{{port}}/odata/documents
+
+### Dokumenty z pozycjami, informacja o kontrahencie, towarze
+
+GET https://{{hostname}}:{{port}}/odata/documents?%24filter=Id%20eq%201&%24expand=contractor(%24select=id,code,name),items(%24select=id,quantity;%24expand=article(%24select=id,code,name))
