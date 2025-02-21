@@ -20,7 +20,6 @@ const GET_DOCUMENTS = gql`
       }]
     ) {
       id
-
       number
       executeDate
       contractor {
@@ -32,11 +31,14 @@ const GET_DOCUMENTS = gql`
         quantity
         article {
           id
-          code
-          name,
+          name
           unit
         }
       }
+    }
+    articles {
+      code
+      name
     }
   }
 `;
@@ -47,23 +49,36 @@ function Documents() {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  return data?.documents.map((document: any) => (
-    <div key={document.id} style={{ textAlign: 'left' }}>
-      <p>Number: {document.number}</p>
-      <p>Data realizacji: {document.executeDate}</p>
-      <p>Nazwa kontrahenta: {document.contractor.name}</p>
-      <ul>Pozycje: 
-      {document.items.map((item: any) => (
-        <li key={item.id} >
-          <p>Ilość: {item.quantity}</p>
-          <p>Kod: {item.article.code}</p>
-          <p>Nazwa: {item.article.name}</p>
-          <p>Jednostka: {item.article.unit}</p>
-        </li>
-      ))}
-      </ul>
+  return (
+    <div style={{ textAlign: 'left' }}>
+      <h2>Documenty</h2>
+      {data.documents.map((document: any) => (
+        <div key={document.id} >
+          <p>Number: {document.number}</p>
+          <p>Data realizacji: {document.executeDate}</p>
+          <p>Nazwa kontrahenta: {document.contractor.name}</p>
+          <ul>Pozycje: 
+            {document.items.map((item: any) => (
+              <li key={item.id} >
+                <p>Ilość: {item.quantity}</p>
+                <p>Kod: {item.article.code}</p>
+                <p>Nazwa: {item.article.name}</p>
+                <p>Jednostka: {item.article.unit}</p>
+              </li>
+            ))}
+          </ul>
+          </div>))}
+          <h2>Artykuły</h2>
+          <ul>
+            {data.articles.map((article: any) => (
+              <li key={article.code}>
+                <p>Kod: {article.code}</p>
+                <p>Nazwa: {article.name}</p>
+              </li>
+            ))}
+            </ul>
     </div>
-  ));
+  );
 }
 
 function App() {
