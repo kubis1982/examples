@@ -20,6 +20,7 @@ const GET_DOCUMENTS = gql`
       }]
     ) {
       id
+
       number
       executeDate
       contractor {
