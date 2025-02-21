@@ -5,7 +5,7 @@ import App from './App.tsx'
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 
 const client = new ApolloClient({
-  uri: 'https://localhost:7045/graphql',
+  uri: 'https://localhost:7045/GRAPHQL',
   cache: new InMemoryCache(),
 });
 
@@ -14,5 +14,5 @@ createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <App />
     </StrictMode>
-  </ApolloProvider>,
+    </ApolloProvider>
 )

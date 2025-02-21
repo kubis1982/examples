@@ -2,14 +2,22 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import { gql, useQuery } from '@apollo/client';
+import { useQuery , gql } from '@apollo/client';
+
+// vi.mock('@apollo/client', () => ({
+//   useQuery: vi.fn((query) => {
+//     return { data: 'mocked data', loading: false, error: null };
+//   }),
+// }));
 
 const GET_DOCUMENTS = gql`
   query GetDocuments {
     documents(
-      where: { 
-        id: { eq: 1 },
-      }
+      order: [ {
+         contractor:  {
+            name: ASC
+         }
+      }]
     ) {
       id
       number
@@ -24,7 +32,8 @@ const GET_DOCUMENTS = gql`
         article {
           id
           code
-          name
+          name,
+          unit
         }
       }
     }
@@ -35,13 +44,23 @@ function Documents() {
   const { loading, error, data } = useQuery(GET_DOCUMENTS);
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error : {error.message}</p>;
+  if (error) return <p>Error: {error.message}</p>;
 
-  return data.documents.map((document: any) => (
-    <div key={document.id}>
-      <h3>{document.number}</h3>
-      <b>About this location:</b>
-      <br />
+  return data?.documents.map((document: any) => (
+    <div key={document.id} style={{ textAlign: 'left' }}>
+      <p>Number: {document.number}</p>
+      <p>Data realizacji: {document.executeDate}</p>
+      <p>Nazwa kontrahenta: {document.contractor.name}</p>
+      <ul>Pozycje: 
+      {document.items.map((item: any) => (
+        <li key={item.id} >
+          <p>Ilość: {item.quantity}</p>
+          <p>Kod: {item.article.code}</p>
+          <p>Nazwa: {item.article.name}</p>
+          <p>Jednostka: {item.article.unit}</p>
+        </li>
+      ))}
+      </ul>
     </div>
   ));
 }

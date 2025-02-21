@@ -36,6 +36,8 @@ builder.Services.AddGraphQLServer()
     .AddSorting()
     .AddFiltering();
 
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
@@ -45,8 +47,14 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 app.UseHttpsRedirection();
+
+app.UseCors(builder =>
+{
+    builder.AllowAnyMethod();
+    builder.AllowAnyOrigin();
+    builder.AllowAnyHeader();
+});
 
 app.MapGraphQL();
 
