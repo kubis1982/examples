@@ -1,9 +1,11 @@
-import Typography from '@mui/material/Typography';
+import { Box } from '@mui/material';
+import { ContainedButton, OutlinedButton } from '../components';
 
 export default function OrdersPage() {
   return (
-    <Typography>
-      Welcome to the Toolpad orders!
-    </Typography>
+    <Box>
+      <ContainedButton />
+      <OutlinedButton />
+    </Box>
   );
 }
