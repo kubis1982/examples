@@ -5,6 +5,7 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import HomePage from './pages/home.tsx'
 import OrdersPage from './pages/orders.tsx'
+import Dashboard from './layouts/dashboard.tsx'
 
 const router = createBrowserRouter([
   {
@@ -12,7 +13,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        Component: HomePage,
+        Component: Dashboard,
         children: [
           {
             path: '',

@@ -16,8 +16,8 @@
     "@mui/material": "^6.4.5",
     "@mui/styled-engine-sc": "^6.4.3",
     "@toolpad/core": "^0.12.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-router-dom": "^7.2.0",
     "styled-components": "^6.1.15"
   },

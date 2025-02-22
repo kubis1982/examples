@@ -27,9 +27,9 @@ const BRANDING = {
 
 function App() {
   return (
-    <>
+    <ReactRouterAppProvider navigation={NAVIGATION} branding={BRANDING}>
       <Outlet />
-    </>
+    </ReactRouterAppProvider>
   )
 }
 
