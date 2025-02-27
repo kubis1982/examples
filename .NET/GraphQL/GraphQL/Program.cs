@@ -1,9 +1,15 @@
 using GraphQL;
 using GraphQL.Persistance;
 using GraphQL.Persistance.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 using Serilog;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +21,8 @@ builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
 builder.AddServiceDefaults();
+
+builder.Services.AddHttpContextAccessor();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -38,11 +46,35 @@ builder.Services.AddDbContext<WriteDbContext>(x =>
      .EnableSensitiveDataLogging(true);
 });
 
-builder.Services.AddGraphQLServer()
+builder.Services.AddGraphQLServer().AddAuthorization()
     .AddQueryType<Query>()
     .AddProjections()
     .AddSorting()
     .AddFiltering();
+
+builder.Services.AddAuthentication(options => {
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(o => {
+    var key = Encoding.UTF8.GetBytes("4f1feeca525de4cab064656007da3edac7895a87ff0ea865693300fb8b6e8f9d");
+    var signingKey = new SymmetricSecurityKey(key);
+    o.RequireHttpsMetadata = false;
+    o.SaveToken = false;
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidIssuer = "https://localhost:7045",
+        ValidAudience = "https://localhost:7045",
+        IssuerSigningKey = signingKey,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddCors();
 
@@ -54,6 +86,7 @@ app.MapDefaultEndpoints();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 app.UseHttpsRedirection();
 
@@ -64,7 +97,10 @@ app.UseCors(builder =>
     builder.AllowAnyHeader();
 });
 
-app.MapGraphQL();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapGraphQL().RequireAuthorization();
 
 app.MapPost("migration", async () =>
 {
@@ -155,5 +191,44 @@ app.MapPost("migration", async () =>
         context.SaveChanges();
     }
 });
+
+app.MapGet("/authorization/admin", () =>
+{
+    var key = Encoding.UTF8.GetBytes("4f1feeca525de4cab064656007da3edac7895a87ff0ea865693300fb8b6e8f9d");
+    var securityKey = new SymmetricSecurityKey(key);
+    var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha512Signature);
+    var claims = new[] {
+                new Claim(ClaimTypes.NameIdentifier, 1.ToString()),
+                new Claim(ClaimTypes.Name, "Admin"),
+                new Claim(ClaimTypes.Role, "Admin"),
+            };
+
+    var token = new JwtSecurityToken("https://localhost:7045", "https://localhost:7045", claims,
+        expires: DateTime.Now.AddYears(1),
+        signingCredentials: signingCredentials);
+
+    var tokenHandler = new JwtSecurityTokenHandler();
+    return tokenHandler.WriteToken(token);
+});
+
+app.MapGet("/authorization/user", () =>
+{
+    var key = Encoding.UTF8.GetBytes("4f1feeca525de4cab064656007da3edac7895a87ff0ea865693300fb8b6e8f9d");
+    var securityKey = new SymmetricSecurityKey(key);
+    var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha512Signature);
+    var claims = new[] {
+                new Claim(ClaimTypes.NameIdentifier, 1.ToString()),
+                new Claim(ClaimTypes.Name, "User"),
+                new Claim(ClaimTypes.Role, "User"),
+            };
+
+    var token = new JwtSecurityToken("https://localhost:7045", "https://localhost:7045", claims,
+        expires: DateTime.Now.AddYears(1),
+        signingCredentials: signingCredentials);
+
+    var tokenHandler = new JwtSecurityTokenHandler();
+    return tokenHandler.WriteToken(token);
+});
+
 
 app.Run();
