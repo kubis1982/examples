@@ -19,26 +19,24 @@ const GET_DOCUMENTS = gql`
          }
       }]
     ) {
-      id
-      number
-      executeDate
-      contractor {
+      nodes {
         id
-        name
-      }
-      items {
-        id
-        quantity
-        article {
+        number
+        executeDate
+        contractor {
           id
           name
-          unit
+        }
+        items {
+          id
+          quantity
+          article {
+            id
+            name
+            unit
+          }
         }
       }
-    }
-    articles {
-      code
-      name
     }
   }
 `;

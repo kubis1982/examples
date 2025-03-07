@@ -28,7 +28,7 @@
 
         private static Task<ExecuteCommandResult> OnRunGraphQLCommandAsync(IResourceBuilder<ProjectResource> builder, ExecuteCommandContext context)
         {
-            var url = "https://localhost:7045/GRAPHQL";
+            var url = "https://localhost:7046/GRAPHQL";
             Process.Start(new ProcessStartInfo
             {
                 FileName = url,
@@ -60,7 +60,7 @@
 
         private static async Task<ExecuteCommandResult> OnRunMigrateCommandAsync(IResourceBuilder<ProjectResource> builder, ExecuteCommandContext context)
         {
-            var url = "https://localhost:7045/migration";
+            var url = "https://localhost:7046/migration";
             var httpClient = new HttpClient();
             var response = await httpClient.PostAsync(url, null);
 

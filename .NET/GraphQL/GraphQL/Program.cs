@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
+using SevenTechnology.Modules.ReadModel.GraphQL.Types;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -47,6 +48,7 @@ builder.Services.AddDbContext<WriteDbContext>(x =>
 });
 
 builder.Services.AddGraphQLServer().AddAuthorization()
+    .AddType<LTreeType>()
     .AddQueryType<Query>()
     .AddProjections()
     .AddSorting()
@@ -100,7 +102,7 @@ app.UseCors(builder =>
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGraphQL().RequireAuthorization();
+app.MapGraphQL();//.RequireAuthorization();
 
 app.MapPost("migration", async () =>
 {
@@ -187,6 +189,31 @@ app.MapPost("migration", async () =>
             Description = "Description 2",
         };
         context.Set<DocumentItem>().AddRange(new[] { documentItem1, documentItem2 });
+
+        context.SaveChanges();
+
+        Group group1 = new()
+        {
+            Id = 1,
+            Code = "A",
+            Path = "A"        
+        };
+
+        Group group2 = new()
+        {
+            Id = 2,
+            Code = "B",
+            Path = "A.B"
+        };
+
+        Group group3 = new()
+        {
+            Id = 3,
+            Code = "C",
+            Path = "A.B.C"
+        };
+
+        context.Set<Group>().AddRange(new[] { group1, group2, group3 });
 
         context.SaveChanges();
     }
