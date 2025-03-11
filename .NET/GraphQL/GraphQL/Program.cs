@@ -1,13 +1,13 @@
-using GraphQL;
+using GraphQL.GraphQLs;
 using GraphQL.Persistance;
 using GraphQL.Persistance.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
-using SevenTechnology.Modules.ReadModel.GraphQL.Types;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -47,26 +47,34 @@ builder.Services.AddDbContext<WriteDbContext>(x =>
      .EnableSensitiveDataLogging(true);
 });
 
-builder.Services.AddGraphQLServer().AddAuthorization()
-    .AddType<LTreeType>()
-    .AddQueryType<Query>()
+var mainSchema = builder.Services.AddGraphQLServer("MainSchema")
+    .AddAuthorization()
+    .AddQueryType<PrimaryQuery>()
     .AddProjections()
     .AddSorting()
     .AddFiltering();
 
-builder.Services.AddAuthentication(options => {
+var secondarySchema = builder.Services.AddGraphQLServer("SecondarySchema")
+    .AddQueryType<SecondaryQuery>()
+    .AddProjections()
+    .AddSorting()
+    .AddFiltering();
+
+builder.Services.AddAuthentication(options =>
+{
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o => {
+}).AddJwtBearer(o =>
+{
     var key = Encoding.UTF8.GetBytes("4f1feeca525de4cab064656007da3edac7895a87ff0ea865693300fb8b6e8f9d");
     var signingKey = new SymmetricSecurityKey(key);
     o.RequireHttpsMetadata = false;
     o.SaveToken = false;
     o.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidIssuer = "https://localhost:7045",
-        ValidAudience = "https://localhost:7045",
+        ValidIssuer = "https://localhost:7046",
+        ValidAudience = "https://localhost:7046",
         IssuerSigningKey = signingKey,
         ValidateIssuer = true,
         ValidateAudience = true,
@@ -102,7 +110,8 @@ app.UseCors(builder =>
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGraphQL();//.RequireAuthorization();
+app.MapGraphQL(schemaName: mainSchema.Name);
+app.MapGraphQL("/graphql2", secondarySchema.Name);
 
 app.MapPost("migration", async () =>
 {
@@ -230,7 +239,7 @@ app.MapGet("/authorization/admin", () =>
                 new Claim(ClaimTypes.Role, "Admin"),
             };
 
-    var token = new JwtSecurityToken("https://localhost:7045", "https://localhost:7045", claims,
+    var token = new JwtSecurityToken("https://localhost:7046", "https://localhost:7046", claims,
         expires: DateTime.Now.AddYears(1),
         signingCredentials: signingCredentials);
 
@@ -249,7 +258,7 @@ app.MapGet("/authorization/user", () =>
                 new Claim(ClaimTypes.Role, "User"),
             };
 
-    var token = new JwtSecurityToken("https://localhost:7045", "https://localhost:7045", claims,
+    var token = new JwtSecurityToken("https://localhost:7046", "https://localhost:7046", claims,
         expires: DateTime.Now.AddYears(1),
         signingCredentials: signingCredentials);
 

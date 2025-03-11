@@ -6,10 +6,12 @@
     public class Group
     {
         [Key]
+        [ID]
         public int Id { get; set; }
 
         public string Code { get; set; } = default!;
 
+        [GraphQLIgnore]
         public LTree Path { get; set; }
     }
 }

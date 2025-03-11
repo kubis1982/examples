@@ -1,4 +1,4 @@
-﻿namespace GraphQL
+﻿namespace GraphQL.GraphQLs
 {
     using GraphQL.Persistance;
     using GraphQL.Persistance.Entities;
@@ -8,7 +8,7 @@
     using Microsoft.EntityFrameworkCore;
 
     [Authorize]
-    public class Query
+    public class PrimaryQuery
     {
 
         [UsePaging(IncludeTotalCount = true)]
@@ -29,22 +29,16 @@
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<Contractor> GetContractors([Service] WriteDbContext writeDbContext) => writeDbContext.Contractors.AsNoTracking();
-
-        [UsePaging(IncludeTotalCount = true)]
-        [UseProjection]
-        [UseFiltering]
-        [UseSorting]
         public async Task<IReadOnlyList<Document>> GetDocuments2(IResolverContext context, [Service] WriteDbContext writeDbContext)
         {
             var query = writeDbContext.Documents.AsNoTracking().Project(context).AsNoTracking();
             return await query.ToListAsync();
         }
 
+        [UsePaging(IncludeTotalCount = true)]
         [UseProjection]
         [UseFiltering]
-        [Authorize]
-        public IQueryable<Group> GetGroups([Service] WriteDbContext writeDbContext) => writeDbContext.Groups.AsNoTracking();
-
+        [UseSorting]
+        public IQueryable<Contractor> GetContractors([Service] WriteDbContext writeDbContext) => writeDbContext.Contractors.AsNoTracking();
     }
 }
