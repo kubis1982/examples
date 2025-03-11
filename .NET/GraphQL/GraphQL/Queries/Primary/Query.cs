@@ -1,14 +1,14 @@
-﻿namespace GraphQL.GraphQLs
+﻿namespace GraphQL.Queries.Primary
 {
-    using GraphQL.Persistance;
-    using GraphQL.Persistance.Entities;
+    using GraphQL.Queries.Primary.Persistance;
+    using GraphQL.Queries.Primary.Persistance.Entities;
     using HotChocolate.Authorization;
     using HotChocolate.Data;
     using HotChocolate.Resolvers;
     using Microsoft.EntityFrameworkCore;
 
     [Authorize]
-    public class PrimaryQuery
+    public class Query
     {
 
         [UsePaging(IncludeTotalCount = true)]
@@ -16,20 +16,20 @@
         [UseFiltering]
         [UseSorting]
         [Authorize(Roles = new[] { "Admin" })]
-        public IQueryable<Document> GetDocuments([Service] WriteDbContext writeDbContext) => writeDbContext.Documents.AsNoTracking();
+        public IQueryable<Document> GetDocuments([Service] PostgresDbContext writeDbContext) => writeDbContext.Documents.AsNoTracking();
 
         [Authorize(Roles = new[] { "User" })]
         [UsePaging(IncludeTotalCount = true)]
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<Article> GetArticles([Service] WriteDbContext writeDbContext) => writeDbContext.Articles.AsNoTracking();
+        public IQueryable<Article> GetArticles([Service] PostgresDbContext writeDbContext) => writeDbContext.Articles.AsNoTracking();
 
         [UsePaging(IncludeTotalCount = true)]
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public async Task<IReadOnlyList<Document>> GetDocuments2(IResolverContext context, [Service] WriteDbContext writeDbContext)
+        public async Task<IReadOnlyList<Document>> GetDocuments2(IResolverContext context, [Service] PostgresDbContext writeDbContext)
         {
             var query = writeDbContext.Documents.AsNoTracking().Project(context).AsNoTracking();
             return await query.ToListAsync();
@@ -39,6 +39,6 @@
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<Contractor> GetContractors([Service] WriteDbContext writeDbContext) => writeDbContext.Contractors.AsNoTracking();
+        public IQueryable<Contractor> GetContractors([Service] PostgresDbContext writeDbContext) => writeDbContext.Contractors.AsNoTracking();
     }
 }

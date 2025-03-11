@@ -1,4 +1,4 @@
-﻿namespace GraphQL.Persistance.Entities
+﻿namespace GraphQL.Queries.Primary.Persistance.Entities
 {
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;

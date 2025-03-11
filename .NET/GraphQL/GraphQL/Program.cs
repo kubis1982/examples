@@ -1,8 +1,7 @@
-using GraphQL.GraphQLs;
-using GraphQL.Persistance;
-using GraphQL.Persistance.Entities;
+using GraphQL.Queries.Primary.Persistance;
+using GraphQL.Queries.Primary.Persistance.Entities;
+using GraphQL.Queries.Secondary.Types;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
@@ -29,7 +28,7 @@ builder.Services.AddHttpContextAccessor();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<WriteDbContext>(x =>
+builder.Services.AddDbContext<PostgresDbContext>(x =>
 {
     x.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
     x.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
@@ -47,15 +46,20 @@ builder.Services.AddDbContext<WriteDbContext>(x =>
      .EnableSensitiveDataLogging(true);
 });
 
-var mainSchema = builder.Services.AddGraphQLServer("MainSchema")
+// Configure main schema
+var mainSchema = builder.Services
+    .AddGraphQLServer("MainSchema")
+    .AddQueryType<GraphQL.Queries.Primary.Query>()
     .AddAuthorization()
-    .AddQueryType<PrimaryQuery>()
     .AddProjections()
     .AddSorting()
     .AddFiltering();
 
-var secondarySchema = builder.Services.AddGraphQLServer("SecondarySchema")
-    .AddQueryType<SecondaryQuery>()
+// Configure secondary schema
+var secondarySchema = builder.Services
+    .AddGraphQLServer("SecondarySchema")
+    .AddQueryType<GraphQL.Queries.Secondary.Query>()
+    .AddType<GroupPathType>()
     .AddProjections()
     .AddSorting()
     .AddFiltering();
@@ -111,11 +115,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGraphQL(schemaName: mainSchema.Name);
-app.MapGraphQL("/graphql2", secondarySchema.Name);
+app.MapGraphQL("/graphql/secondary", secondarySchema.Name);
 
 app.MapPost("migration", async () =>
 {
-    WriteDbContext context = app.Services.CreateScope().ServiceProvider.GetRequiredService<WriteDbContext>();
+    PostgresDbContext context = app.Services.CreateScope().ServiceProvider.GetRequiredService<PostgresDbContext>();
     await context.Database.MigrateAsync();
 
     var isArticle = context.Set<Article>().Any();
@@ -200,31 +204,6 @@ app.MapPost("migration", async () =>
         context.Set<DocumentItem>().AddRange(new[] { documentItem1, documentItem2 });
 
         context.SaveChanges();
-
-        Group group1 = new()
-        {
-            Id = 1,
-            Code = "A",
-            Path = "A"        
-        };
-
-        Group group2 = new()
-        {
-            Id = 2,
-            Code = "B",
-            Path = "A.B"
-        };
-
-        Group group3 = new()
-        {
-            Id = 3,
-            Code = "C",
-            Path = "A.B.C"
-        };
-
-        context.Set<Group>().AddRange(new[] { group1, group2, group3 });
-
-        context.SaveChanges();
     }
 });
 
@@ -265,6 +244,5 @@ app.MapGet("/authorization/user", () =>
     var tokenHandler = new JwtSecurityTokenHandler();
     return tokenHandler.WriteToken(token);
 });
-
 
 app.Run();
