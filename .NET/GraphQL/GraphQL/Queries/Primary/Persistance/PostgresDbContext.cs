@@ -9,5 +9,7 @@
         public DbSet<Contractor> Contractors { get; set; }
         public DbSet<Document> Documents { get; set; }
         public DbSet<DocumentItem> DocumentItems { get; set; }
+
+        public DbSet<Group> Groups { get; set; }
     }
 }

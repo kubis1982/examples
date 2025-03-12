@@ -1,5 +1,7 @@
-namespace GraphQL.Queries.Secondary.Types
+namespace GraphQL.Queries.Primary.Persistance.Entities
 {
+    using Microsoft.EntityFrameworkCore;
+
     public class Group
     {
         [ID]
@@ -7,6 +9,6 @@ namespace GraphQL.Queries.Secondary.Types
 
         public string Code { get; set; } = default!;
 
-        public GroupPath Path { get; set; }
+        public LTree Path { get; set; }
     }
 }

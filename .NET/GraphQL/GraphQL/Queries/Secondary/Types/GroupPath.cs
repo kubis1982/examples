@@ -1,7 +1,6 @@
-﻿namespace GraphQL.Queries.Secondary.Types
+namespace GraphQL.Queries.Secondary.Types
 {
     using Microsoft.EntityFrameworkCore.Diagnostics;
-    using Microsoft.EntityFrameworkCore;
 
     public struct GroupPath : IEquatable<GroupPath>
     {
@@ -74,7 +73,7 @@
 
         public override bool Equals(object? obj)
         {
-            if (obj is LTree other)
+            if (obj is GroupPath other)
             {
                 return Equals(other);
             }

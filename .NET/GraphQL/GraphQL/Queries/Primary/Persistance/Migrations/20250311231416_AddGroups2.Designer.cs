@@ -3,17 +3,20 @@ using System;
 using GraphQL.Queries.Primary.Persistance;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace GraphQL.Persistance.Migrations
+namespace GraphQL.Queries.Primary.Persistance.Migrations
 {
     [DbContext(typeof(PostgresDbContext))]
-    partial class WriteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250311231416_AddGroups2")]
+    partial class AddGroups2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

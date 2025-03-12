@@ -25,7 +25,7 @@
             }
             ];
 
-        [UseProjection]
+
         [UseFiltering]
         public IQueryable<Group> GetGroups() => Groups.AsQueryable();
     }

@@ -7,7 +7,6 @@
     using HotChocolate.Resolvers;
     using Microsoft.EntityFrameworkCore;
 
-    [Authorize]
     public class Query
     {
 
@@ -40,5 +39,11 @@
         [UseFiltering]
         [UseSorting]
         public IQueryable<Contractor> GetContractors([Service] PostgresDbContext writeDbContext) => writeDbContext.Contractors.AsNoTracking();
+
+        [UsePaging(IncludeTotalCount = true)]
+        [UseProjection]
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<Group> GetGroups([Service] PostgresDbContext writeDbContext) => writeDbContext.Groups.AsNoTracking();
     }
 }
