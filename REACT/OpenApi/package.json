@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-api": "node --loader ts-node/esm openapi-schemas.ts && npx @rtk-query/codegen-openapi openapi-config.ts"
+    "generate-api": "npx @rtk-query/codegen-openapi openapi-config.ts"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
