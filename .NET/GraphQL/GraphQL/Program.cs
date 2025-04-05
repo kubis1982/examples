@@ -1,13 +1,12 @@
-using GraphQL;
-using GraphQL.Persistance;
-using GraphQL.Persistance.Entities;
+using GraphQL.Queries.Primary.Persistance;
+using GraphQL.Queries.Primary.Persistance.Entities;
+using GraphQL.Queries.Secondary.Types;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
-using SevenTechnology.Modules.ReadModel.GraphQL.Types;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -29,7 +28,7 @@ builder.Services.AddHttpContextAccessor();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<WriteDbContext>(x =>
+builder.Services.AddDbContext<PostgresDbContext>(x =>
 {
     x.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
     x.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
@@ -47,26 +46,39 @@ builder.Services.AddDbContext<WriteDbContext>(x =>
      .EnableSensitiveDataLogging(true);
 });
 
-builder.Services.AddGraphQLServer().AddAuthorization()
-    .AddType<LTreeType>()
-    .AddQueryType<Query>()
+// Configure main schema
+var mainSchema = builder.Services
+    .AddGraphQLServer("MainSchema")
+    .AddQueryType<GraphQL.Queries.Primary.Query>()
+    .AddAuthorization()
     .AddProjections()
     .AddSorting()
     .AddFiltering();
 
-builder.Services.AddAuthentication(options => {
+// Configure secondary schema
+var secondarySchema = builder.Services
+    .AddGraphQLServer("SecondarySchema")
+    .AddQueryType<GraphQL.Queries.Secondary.Query>()
+    .AddType<GroupPathType>()
+    .AddProjections()
+    .AddSorting()
+    .AddFiltering();
+
+builder.Services.AddAuthentication(options =>
+{
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o => {
+}).AddJwtBearer(o =>
+{
     var key = Encoding.UTF8.GetBytes("4f1feeca525de4cab064656007da3edac7895a87ff0ea865693300fb8b6e8f9d");
     var signingKey = new SymmetricSecurityKey(key);
     o.RequireHttpsMetadata = false;
     o.SaveToken = false;
     o.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidIssuer = "https://localhost:7045",
-        ValidAudience = "https://localhost:7045",
+        ValidIssuer = "https://localhost:7046",
+        ValidAudience = "https://localhost:7046",
         IssuerSigningKey = signingKey,
         ValidateIssuer = true,
         ValidateAudience = true,
@@ -102,11 +114,12 @@ app.UseCors(builder =>
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGraphQL();//.RequireAuthorization();
+app.MapGraphQL(schemaName: mainSchema.Name);
+app.MapGraphQL("/graphql/secondary", secondarySchema.Name);
 
 app.MapPost("migration", async () =>
 {
-    WriteDbContext context = app.Services.CreateScope().ServiceProvider.GetRequiredService<WriteDbContext>();
+    PostgresDbContext context = app.Services.CreateScope().ServiceProvider.GetRequiredService<PostgresDbContext>();
     await context.Database.MigrateAsync();
 
     var isArticle = context.Set<Article>().Any();
@@ -191,31 +204,6 @@ app.MapPost("migration", async () =>
         context.Set<DocumentItem>().AddRange(new[] { documentItem1, documentItem2 });
 
         context.SaveChanges();
-
-        Group group1 = new()
-        {
-            Id = 1,
-            Code = "A",
-            Path = "A"        
-        };
-
-        Group group2 = new()
-        {
-            Id = 2,
-            Code = "B",
-            Path = "A.B"
-        };
-
-        Group group3 = new()
-        {
-            Id = 3,
-            Code = "C",
-            Path = "A.B.C"
-        };
-
-        context.Set<Group>().AddRange(new[] { group1, group2, group3 });
-
-        context.SaveChanges();
     }
 });
 
@@ -230,7 +218,7 @@ app.MapGet("/authorization/admin", () =>
                 new Claim(ClaimTypes.Role, "Admin"),
             };
 
-    var token = new JwtSecurityToken("https://localhost:7045", "https://localhost:7045", claims,
+    var token = new JwtSecurityToken("https://localhost:7046", "https://localhost:7046", claims,
         expires: DateTime.Now.AddYears(1),
         signingCredentials: signingCredentials);
 
@@ -249,13 +237,12 @@ app.MapGet("/authorization/user", () =>
                 new Claim(ClaimTypes.Role, "User"),
             };
 
-    var token = new JwtSecurityToken("https://localhost:7045", "https://localhost:7045", claims,
+    var token = new JwtSecurityToken("https://localhost:7046", "https://localhost:7046", claims,
         expires: DateTime.Now.AddYears(1),
         signingCredentials: signingCredentials);
 
     var tokenHandler = new JwtSecurityTokenHandler();
     return tokenHandler.WriteToken(token);
 });
-
 
 app.Run();
