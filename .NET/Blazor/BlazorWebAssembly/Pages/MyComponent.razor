@@ -1,0 +1,13 @@
+﻿@page "/my-component"
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info">@message</div>
+}
+
+<h1>MyComponent</h1>
+
+<p>Wartość: @currentValue</p>
+
+<button class="btn btn-primary" @onclick="Increment">Zwiększ</button>
+<button class="btn btn-primary" @onclick="Decrement">Zmniejsz</button>
