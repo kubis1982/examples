@@ -1,9 +1,10 @@
-﻿@inherits LayoutComponentBase
+﻿
+@inherits LayoutComponentBase
 
 <BlazorBootstrapLayout StickyHeader="true">
-    <HeaderSection>
-        <ThemeSwitcher Class="ps-3 ps-lg-2" />
-    </HeaderSection>
+    <ContentSection>
+        @Body
+    </ContentSection>
 
     <SidebarSection>
         <Sidebar2 @ref="sidebar"
@@ -11,13 +12,6 @@
                  Title="Blazor"
                  DataProvider="SidebarDataProvider" />
     </SidebarSection>
-
-    <ContentSection>
-        @Body
-    </ContentSection>
-
-    <FooterSection>
-    </FooterSection>
 </BlazorBootstrapLayout>
 
 @code {
@@ -37,8 +31,6 @@
         navItems = new List<NavItem>
         {
             new NavItem { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Home", Match=NavLinkMatch.All},
-            new NavItem { Id = "2", Href = "/counter", IconName = IconName.PlusSquareFill, Text = "Counter"},
-            new NavItem { Id = "3", Href = "/weather", IconName = IconName.Table, Text = "Fetch Data"},
             new NavItem { Id = "4", Href = "/my-component", IconName = IconName.Activity, Text = "My component"},
         };
 

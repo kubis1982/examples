@@ -1,4 +1,7 @@
 ﻿@page "/my-component"
+@layout MainLayout2
+
+<PageTitle>MyComponent</PageTitle>
 
 @if (!string.IsNullOrEmpty(message))
 {
@@ -7,7 +10,16 @@
 
 <h1>MyComponent</h1>
 
-<p>Wartość: @currentValue</p>
+<p>Wartość: @CurrentValue</p>
+
+<div class="@($"{CurrentValue} + 45")"/>
 
 <button class="btn btn-primary" @onclick="Increment">Zwiększ</button>
 <button class="btn btn-primary" @onclick="Decrement">Zmniejsz</button>
+
+<p>
+    @ChildComponent
+</p>
+
+<input @ref="textInput" />
+<Button @onclick=@(() => textInput.FocusAsync())>Ustaw fokus</Button>

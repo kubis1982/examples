@@ -1,32 +1,46 @@
 ﻿namespace BlazorWebAssembly.Pages
 {
+    using BlazorBootstrap;
+    using Microsoft.AspNetCore.Components;
+    using System.ComponentModel.DataAnnotations;
     using System.Threading.Tasks;
 
     public partial class MyComponent
     {
-        private int currentValue;
+        private ElementReference textInput;
+
+        [Parameter]
+        public int CurrentValue { get; set; }
+
+        [Parameter]
+        public int Value { get; set; } = 1;
+
+        [Parameter]
+        public EventCallback<int> CurrentValueChanged { get; set; }
+
         private string? message;
 
-        private void Increment()
+        private async Task Increment()
         {
             message = string.Empty;
-            currentValue++;
+
+            CurrentValue+=Value;
+
+            await CurrentValueChanged.InvokeAsync(CurrentValue);
         }
 
-        private void Decrement()
+        private async Task Decrement()
         {
-            if (currentValue == 0) {
+            if (CurrentValue == 0) {
                 message = "Próba ustawienia wartości poniżej zera";
                 return;
             };            
-            currentValue--;
+            CurrentValue -= Value;
+
+            await CurrentValueChanged.InvokeAsync(CurrentValue);
         }
 
-        protected override Task OnInitializedAsync()
-        {
-            currentValue += 10;
-
-            return base.OnInitializedAsync();
-        }
+        [Parameter]
+        public RenderFragment? ChildComponent { get; set; }
     }
 }
